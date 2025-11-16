@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Optional, Literal
 
@@ -286,11 +286,11 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://youtube-trending-analytics.netlify.app/",
-        "http://localhost:5500"
+        "https://youtube-trending-analytics.netlify.app",
+        "http://localhost:5500",           # for your local testing
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["*"],                   # GET, POST, etc.
     allow_headers=["*"],
 )
 
@@ -352,4 +352,5 @@ def chat(req: ChatRequest):
         region=region,
         limit=limit,
     )
+
 
