@@ -173,7 +173,13 @@ Processes natural language commands to control the dashboard.
 
 ## 📸 Screenshots
 
-*(Placeholder: Add screenshots of your dashboard here showing the metrics grid, the chat interface, and the data tables.)*
+**Opening Interface:**
+
+![Image](https://github.com/Subani7181/YouTube-Trending-Analytics-Copilot/blob/main/example.jpeg)
+
+**Example:**
+
+![Image](https://github.com/Subani7181/YouTube-Trending-Analytics-Copilot/blob/main/demo.jpeg)
 
 ---
 
