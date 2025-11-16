@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "http://127.0.0.1:8000";
+  const API_BASE = "https://youtube-trending-analytics-copilot.onrender.com/";
   const SNAPSHOT_KEY = "yt_trending_snapshots";
 
   const regionSelect = document.getElementById("region");
@@ -953,3 +953,4 @@ document.addEventListener("DOMContentLoaded", () => {
   renderSnapshotsList();
   loadTrending(regionSelect.value || "US", parseInt(limitInput.value, 10) || 25);
 });
+
