@@ -285,11 +285,15 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # tighten for production
+    allow_origins=[
+        "https://youtube-trending-analytics.netlify.app/",
+        "http://localhost:5500"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 @app.get("/health")
@@ -348,3 +352,4 @@ def chat(req: ChatRequest):
         region=region,
         limit=limit,
     )
+
