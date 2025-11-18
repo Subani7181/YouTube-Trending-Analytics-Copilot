@@ -326,13 +326,23 @@ def get_trending(
         raise HTTPException(status_code=404, detail="No trending videos found.")
 
     metrics = compute_trending_metrics(df, region=region)
-    videos = [TrendingVideo(**row) for row in df.to_dict(orient="records")]
 
-    return TrendingResponse(
-        region=region,
-        videos=videos,
-        metrics=metrics,
-    )
+records = df.to_dict(orient="records")
+cleaned_videos = []
+for row in records:
+    # Convert NaN to None for optional numeric fields
+    for field in ("like_count", "comment_count", "duration_seconds"):
+        value = row.get(field)
+        if pd.isna(value):
+            row[field] = None
+    cleaned_videos.append(TrendingVideo(**row))
+
+return TrendingResponse(
+    region=region,
+    videos=cleaned_videos,
+    metrics=metrics,
+)
+
 
 
 @app.post("/api/chat", response_model=ChatResponse)
@@ -351,6 +361,7 @@ def chat(req: ChatRequest):
         region=region,
         limit=limit,
     )
+
 
 
 
