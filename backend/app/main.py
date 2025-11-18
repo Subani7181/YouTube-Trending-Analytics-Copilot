@@ -1,7 +1,7 @@
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional, Literal
+from typing import List, Optional
 
 import os
 import re
@@ -236,6 +236,7 @@ REGION_MAP = {
     "brazil": "BR",
 }
 
+
 def interpret_chat(message: str, default_region: Optional[str] = None, default_limit: Optional[int] = None):
     """
     Simple rule-based interpreter for trending dashboard commands.
@@ -286,10 +287,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://youtube-trending-analytics.netlify.app",  # your frontend
-        "http://localhost:5500",                           # local testing
+        "https://youtube-trending-analytics.netlify.app",
+        "http://localhost:5500",
     ],
-    allow_credentials=False,          # no cookies/auth → keep this False
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -318,6 +319,7 @@ def get_trending(
     try:
         df = fetch_trending_videos(region=region, max_results=limit)
     except RuntimeError as e:
+        # e.g. YouTube API error or missing API key
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal error: {e}")
@@ -325,24 +327,23 @@ def get_trending(
     if df.empty:
         raise HTTPException(status_code=404, detail="No trending videos found.")
 
+    # Compute metrics
     metrics = compute_trending_metrics(df, region=region)
 
-records = df.to_dict(orient="records")
-cleaned_videos = []
-for row in records:
-    # Convert NaN to None for optional numeric fields
-    for field in ("like_count", "comment_count", "duration_seconds"):
-        value = row.get(field)
-        if pd.isna(value):
-            row[field] = None
-    cleaned_videos.append(TrendingVideo(**row))
+    # Clean NaN -> None so Pydantic accepts Optional[int] fields
+    records = df.to_dict(orient="records")
+    cleaned_videos: List[TrendingVideo] = []
+    for row in records:
+        for field in ("like_count", "comment_count", "duration_seconds"):
+            if field in row and pd.isna(row[field]):
+                row[field] = None
+        cleaned_videos.append(TrendingVideo(**row))
 
-return TrendingResponse(
-    region=region,
-    videos=cleaned_videos,
-    metrics=metrics,
-)
-
+    return TrendingResponse(
+        region=region,
+        videos=cleaned_videos,
+        metrics=metrics,
+    )
 
 
 @app.post("/api/chat", response_model=ChatResponse)
@@ -361,7 +362,3 @@ def chat(req: ChatRequest):
         region=region,
         limit=limit,
     )
-
-
-
-
